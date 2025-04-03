@@ -15,10 +15,10 @@ export const DataProvider = ({ children }) => {
   const [showStart, setShowStart] = useState(true);
   const [showQuiz, setShowQuiz] = useState(false);
   const [showResult, setShowResult] = useState(false);
-  const API_URL = process.env.REACT_APP_API_URL;
+  
   // Backend'den veri çekme
   useEffect(() => {
-    fetch(`${API_URL}/api/Question`) // Tüm soruları çeken endpoint
+    fetch(`${process.env.REACT_APP_API_URL}/api/Question`) // Tüm soruları çeken endpoint
       .then((res) => res.json())
       .then((data) => {
         // Soruları rastgele karıştır ve ilk 15 tanesini al
