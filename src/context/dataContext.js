@@ -2,97 +2,134 @@ import { createContext, useState, useEffect } from "react";
 
 const DataContext = createContext({});
 
-export const DataProvider = ({children}) => {
-      // All Quizs, Current Question, Index of Current Question, Answer, Selected Answer, Total Marks
+export const DataProvider = ({ children }) => {
+  // Tüm quizler, mevcut soru, soru indeksi, doğru cevap, seçilen cevap, toplam puan
   const [quizs, setQuizs] = useState([]);
-  const [question, setQuesion] = useState({});
+  const [question, setQuestion] = useState({});
   const [questionIndex, setQuestionIndex] = useState(0);
-  const [correctAnswer, setCorrectAnswer] = useState('');
-  const [selectedAnswer, setSelectedAnswer] = useState('');
+  const [correctAnswer, setCorrectAnswer] = useState("");
+  const [selectedAnswer, setSelectedAnswer] = useState("");
   const [marks, setMarks] = useState(0);
 
-  // Display Controlling States
+  // Görünüm kontrol state'leri
   const [showStart, setShowStart] = useState(true);
   const [showQuiz, setShowQuiz] = useState(false);
   const [showResult, setShowResult] = useState(false);
-
-  // Load JSON Data
+  const API_URL = process.env.REACT_APP_API_URL;
+  // Backend'den veri çekme
   useEffect(() => {
-    fetch('quiz.json')
-      .then(res => res.json())
-      .then(data => setQuizs(data))
+    fetch(`${API_URL}/api/Question`) // Tüm soruları çeken endpoint
+      .then((res) => res.json())
+      .then((data) => {
+        // Soruları rastgele karıştır ve ilk 15 tanesini al
+        const shuffled = data.sort(() => 0.5 - Math.random());
+        const selectedQuestions = shuffled.slice(0, 20);
+        setQuizs(selectedQuestions);
+      })
+      .catch((error) => console.error("Veri çekme hatası:", error));
   }, []);
 
-  // Set a Single Question
+  // Mevcut soruyu ayarlama
   useEffect(() => {
     if (quizs.length > questionIndex) {
-      setQuesion(quizs[questionIndex]);
+      setQuestion(quizs[questionIndex]);
     }
-  }, [quizs, questionIndex])
+  }, [quizs, questionIndex]);
 
-  // Start Quiz
+  // Quiz'i başlat
   const startQuiz = () => {
     setShowStart(false);
     setShowQuiz(true);
-  }
-
-  // Check Answer
+  };
+  const goToMain = () => {
+    setShowStart(true);
+    setShowQuiz(false);
+    setShowResult(false);
+     // Quiz verilerini sıfırla
+    setQuestion({}); // Mevcut soruyu sıfırla
+    setQuestionIndex(0); // Soru indeksini sıfırla
+    setCorrectAnswer(""); // Doğru cevabı sıfırla
+    setSelectedAnswer(""); // Seçilen cevabı sıfırla
+    setMarks(0); // Puanı sıfırla
+  
+    // Yanlış ve doğru butonların rengini sıfırla
+    const wrongBtn = document.querySelector("button.bg-danger");
+    wrongBtn?.classList.remove("bg-danger");
+    const rightBtn = document.querySelector("button.bg-success");
+    rightBtn?.classList.remove("bg-success");
+    
+  };
+  // Cevabı kontrol et
   const checkAnswer = (event, selected) => {
     if (!selectedAnswer) {
-      setCorrectAnswer(question.answer);
+      setCorrectAnswer(question.correctAnswer);
       setSelectedAnswer(selected);
 
-      if (selected === question.answer) {
-        event.target.classList.add('bg-success');
+      if (selected === question.correctAnswer) {
+        event.target.classList.add("bg-success");
         setMarks(marks + 5);
       } else {
-        event.target.classList.add('bg-danger');
+        event.target.classList.add("bg-danger");
       }
     }
-  }
+  };
 
-  // Next Quesion
+  // Sonraki soru
   const nextQuestion = () => {
-    setCorrectAnswer('');
-    setSelectedAnswer('');
-    const wrongBtn = document.querySelector('button.bg-danger');
-    wrongBtn?.classList.remove('bg-danger');
-    const rightBtn = document.querySelector('button.bg-success');
-    rightBtn?.classList.remove('bg-success');
+    setCorrectAnswer("");
+    setSelectedAnswer("");
+    const wrongBtn = document.querySelector("button.bg-danger");
+    wrongBtn?.classList.remove("bg-danger");
+    const rightBtn = document.querySelector("button.bg-success");
+    rightBtn?.classList.remove("bg-success");
     setQuestionIndex(questionIndex + 1);
-  }
+  };
 
-  // Show Result
+  // Sonucu göster
   const showTheResult = () => {
     setShowResult(true);
     setShowStart(false);
     setShowQuiz(false);
-  }
+  };
 
-  // Start Over
+  // Baştan başla
   const startOver = () => {
     setShowStart(false);
     setShowResult(false);
     setShowQuiz(true);
-    setCorrectAnswer('');
-    setSelectedAnswer('');
+    setCorrectAnswer("");
+    setSelectedAnswer("");
     setQuestionIndex(0);
     setMarks(0);
-    const wrongBtn = document.querySelector('button.bg-danger');
-    wrongBtn?.classList.remove('bg-danger');
-    const rightBtn = document.querySelector('button.bg-success');
-    rightBtn?.classList.remove('bg-success');
-  }
-    return (
-        <DataContext.Provider value={{
-            startQuiz,showStart,showQuiz,question,quizs,checkAnswer,correctAnswer,
-            selectedAnswer,questionIndex,nextQuestion,showTheResult,showResult,marks,
-            startOver
-        }} >
-            {children}
-        </DataContext.Provider>
-    );
-}
+    const wrongBtn = document.querySelector("button.bg-danger");
+    wrongBtn?.classList.remove("bg-danger");
+    const rightBtn = document.querySelector("button.bg-success");
+    rightBtn?.classList.remove("bg-success");
+  };
+
+  return (
+    <DataContext.Provider
+      value={{
+        startQuiz,
+        showStart,
+        showQuiz,
+        question,
+        quizs,
+        checkAnswer,
+        correctAnswer,
+        selectedAnswer,
+        questionIndex,
+        nextQuestion,
+        showTheResult,
+        showResult,
+        marks,
+        startOver,
+        goToMain,
+      }}
+    >
+      {children}
+    </DataContext.Provider>
+  );
+};
 
 export default DataContext;
-

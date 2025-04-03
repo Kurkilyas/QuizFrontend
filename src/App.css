@@ -15,6 +15,10 @@
 
 .App-header {
   background-color: #282c34;
+  background-image: url('https://pbs.twimg.com/media/Gme3ENfWEAAsGXO?format=jpg&name=large');
+  background-size: cover;      /* Resim tüm alanı kaplayacak şekilde ayarlanır */
+  background-position: center; /* Resim ortalanır */
+  background-repeat: no-repeat;/* Resmin tekrarlanmaması sağlanır */
   min-height: 100vh;
   display: flex;
   flex-direction: column;
