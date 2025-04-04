@@ -17,17 +17,26 @@ export const DataProvider = ({ children }) => {
   const [showResult, setShowResult] = useState(false);
   
   // Backend'den veri çekme
-  useEffect(() => {
-    fetch(`${process.env.REACT_APP_API_URL}/api/Question`) // Tüm soruları çeken endpoint
-      .then((res) => res.json())
-      .then((data) => {
-        // Soruları rastgele karıştır ve ilk 15 tanesini al
-        const shuffled = data.sort(() => 0.5 - Math.random());
-        const selectedQuestions = shuffled.slice(0, 20);
-        setQuizs(selectedQuestions);
-      })
-      .catch((error) => console.error("Veri çekme hatası:", error));
-  }, []);
+ useEffect(() => {
+  // İlk fetch: Soruları çekmek için
+  fetch(`${process.env.REACT_APP_API_URL}/api/Question`, {
+    method: "GET",
+    headers: {
+      "Connection": "keep-alive",
+    },
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      // Soruları rastgele karıştır ve ilk 20 tanesini al
+      const shuffled = data.sort(() => 0.5 - Math.random());
+      const selectedQuestions = shuffled.slice(0, 20);
+      setQuizs(selectedQuestions);
+    })
+    .catch((error) => console.error("Veri çekme hatası:", error));
+
+ 
+}, []);
+
 
   // Mevcut soruyu ayarlama
   useEffect(() => {
