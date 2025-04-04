@@ -1,4 +1,5 @@
 import { createContext, useState, useEffect } from "react";
+import sound from '../assests/music.mp3'
 
 const DataContext = createContext({});
 
@@ -44,11 +45,15 @@ export const DataProvider = ({ children }) => {
       setQuestion(quizs[questionIndex]);
     }
   }, [quizs, questionIndex]);
-
+  const play=()=>{
+    new Audio(sound).play();
+  }
   // Quiz'i başlat
   const startQuiz = () => {
     setShowStart(false);
     setShowQuiz(true);
+    play();
+
   };
   const goToMain = () => {
     setShowStart(true);
